@@ -1,28 +1,58 @@
-version: 0.2
+#version: 0.2
+#
+#env:
+ # parameter-store:
+  #  DOCKER_REGISTRY_USERNAME: /cloud-cicd/docker-credentials/username
+   # DOCKER_REGISTRY_PASSWORD: /cloud-cicd/docker-credentials/password
+    #DOCKER_REGISTRY_URL: /cloud-cicd/docker-registry/url
+#phases:
+ # install:
+  #  runtime-versions:
+   #   python: 3.11
+  #pre_build:
+   # commands:
+    #  - echo "Installing dependencies..."
+     # - pip install -r requirements.txt
+  #build:
+   # commands:
+    #  - echo "Running tests..."
+     # - echo "Building Docker image..."
+      #- echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin "$DOCKER_REGISTRY_URL"
+      #- docker build -t "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/hotel-app:latest" .
+      #- docker push "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/hotel-app:latest"
+  #post_build:
+   # commands:
+    #  - echo "Build completed successfully!"
+#artifacts:
+ # files:
+  #  - '**/*'
 
-env:
-  parameter-store:
-    DOCKER_REGISTRY_USERNAME: /cloud-cicd/docker-credentials/username
-    DOCKER_REGISTRY_PASSWORD: /cloud-cicd/docker-credentials/password
-    DOCKER_REGISTRY_URL: /cloud-cicd/docker-registry/url
+  version: 0.2
+
 phases:
+  
   install:
     runtime-versions:
       python: 3.11
+
   pre_build:
     commands:
       - echo "Installing dependencies..."
       - pip install -r requirements.txt
+      - echo Logging in to Docker Hub...
+      - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
   build:
     commands:
-      - echo "Running tests..."
-      - echo "Building Docker image..."
-      - echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin "$DOCKER_REGISTRY_URL"
-      - docker build -t "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/hotel-app:latest" .
-      - docker push "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/hotel-app:latest"
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $DOCKERHUB_USERNAME/hotel-app:latest .
   post_build:
     commands:
-      - echo "Build completed successfully!"
-artifacts:
-  files:
-    - '**/*'
+      - echo Build completed on `date`
+      - echo Pushing the Docker image to Docker Hub...
+      - docker push $DOCKERHUB_USERNAME/hotel-app:latest
+
+env:
+  variables:
+    DOCKERHUB_USERNAME: "your_dockerhub_username"
+    DOCKERHUB_PASSWORD: "your_dockerhub_password"
